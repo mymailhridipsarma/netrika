@@ -184,9 +184,14 @@ function Hero({
   useEffect(() => {
     setLoaded(true)
     if (videoRef.current) {
-      videoRef.current.play().catch((err) => {
-        console.log('Autoplay deferred or prevented by browser:', err)
-      })
+      videoRef.current.defaultMuted = true
+      videoRef.current.muted = true
+      const playPromise = videoRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.log('Autoplay deferred or prevented by browser:', err)
+        })
+      }
     }
 
     let ticking = false
