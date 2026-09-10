@@ -1,151 +1,46 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Activity,
-  ArrowRight,
-  BrainCircuit,
-  Check,
-  ChevronDown,
-  CircleHelp,
-  Clock3,
-  Eye,
-  FileCheck2,
-  FileImage,
-  Gauge,
-  HeartPulse,
-  Info,
-  Layers3,
-  Menu,
-  Microscope,
-  MoveRight,
-  Play,
-  ShieldCheck,
-  Sparkles,
-  Stethoscope,
-  UploadCloud,
-  X,
-  Zap,
-} from 'lucide-react'
+import { Activity, ArrowRight, Check, ChevronRight, CircleHelp, Download, Eye, FileCheck2, FileImage, Menu, Play, ScanLine, ShieldCheck, Sparkles, Stethoscope, UploadCloud, Users, X } from 'lucide-react'
 
 type ScanState = 'ready' | 'analyzing' | 'complete'
-type ViewMode = 'original' | 'heatmap' | 'vessels'
-
-const steps = [
-  { icon: UploadCloud, title: 'Capture', copy: 'Upload a clear retinal image in seconds.' },
-  { icon: BrainCircuit, title: 'Understand', copy: 'Our model checks anatomy and visual signals.' },
-  { icon: Stethoscope, title: 'Act', copy: 'Share a confident next step with your care team.' },
-]
+type ViewMode = 'original' | 'gradcam' | 'overlay'
 
 const evidence = [
-  ['Microaneurysm pattern', 'Strong signal', 'coral'],
-  ['Vessel geometry', 'Within range', 'mint'],
-  ['Image quality', 'Excellent', 'blue'],
+  { name: 'Possible microaneurysms', confidence: '92%', tone: 'teal' },
+  { name: 'Possible hemorrhagic regions', confidence: '86%', tone: 'violet' },
+  { name: 'Possible exudative regions', confidence: '78%', tone: 'amber' },
+  { name: 'Other retinal abnormalities', confidence: '64%', tone: 'coral' },
 ]
 
-function RetinalImage({ mode }: { mode: ViewMode }) {
-  return (
-    <div className={`retina-art ${mode}`} aria-label={`${mode} retinal scan visualization`} role="img">
-      <div className="retina-glow" />
-      <div className="retina-disc" />
-      <div className="vessel vessel-a" />
-      <div className="vessel vessel-b" />
-      <div className="vessel vessel-c" />
-      <div className="vessel vessel-d" />
-      <div className="retina-speck speck-a" />
-      <div className="retina-speck speck-b" />
-      <div className="scan-ring" />
-      {mode === 'heatmap' && <div className="heat-zone zone-a" />}
-      {mode === 'heatmap' && <div className="heat-zone zone-b" />}
-      {mode === 'vessels' && <div className="vessel-overlay" />}
-      <div className="scan-corner corner-one" />
-      <div className="scan-corner corner-two" />
-      <div className="scan-corner corner-three" />
-      <div className="scan-corner corner-four" />
-    </div>
-  )
+function RetinaVisual({ mode = 'original', compact = false }: { mode?: ViewMode; compact?: boolean }) {
+  return <div className={`fundus ${mode} ${compact ? 'compact' : ''}`} role="img" aria-label={`${mode} retinal image visualization`}>
+    <img src="/netrika-fundus.png" alt="Retinal fundus image" />
+    <div className="fundus-vignette" />
+    {mode !== 'original' && <div className="heatmap" />}
+    {mode === 'overlay' && <div className="overlay-tint" />}
+    <div className="fundus-ring" />
+    <div className="scan-line" />
+    <span className="feature-point point-one" /><span className="feature-point point-two" /><span className="feature-point point-three" />
+    <span className="corner tl" /><span className="corner tr" /><span className="corner bl" /><span className="corner br" />
+  </div>
 }
 
-function AppHeader() {
-  return (
-    <header className="site-header">
-      <a className="brand" href="#top" aria-label="RetinaCare home">
-        <span className="brand-mark"><Eye size={19} strokeWidth={2.5} /></span>
-        <span>Retina<span>Care</span><sup>AI</sup></span>
-      </a>
-      <nav className="desktop-nav" aria-label="Main navigation">
-        <a href="#how-it-works">How it works</a>
-        <a href="#screening">Screening</a>
-        <a href="#evidence">Evidence</a>
-      </nav>
-      <div className="header-actions">
-        <button className="text-button" type="button">Sign in</button>
-        <a className="button button-dark" href="#screening">Try screening <ArrowRight size={16} /></a>
-      </div>
-      <button className="menu-button" aria-label="Open navigation" type="button"><Menu /></button>
-    </header>
-  )
+function Logo() { return <a className="logo" href="#top" aria-label="Netrika home"><span className="logo-mark"><Eye size={17} /></span><span>Netrika</span></a> }
+
+function Navbar() {
+  const [open, setOpen] = useState(false)
+  return <header className="navbar"><Logo /><nav className={open ? 'nav-links open' : 'nav-links'}><a href="#workflow" onClick={() => setOpen(false)}>Screening</a><a href="#workflow" onClick={() => setOpen(false)}>Cases</a><a href="#report" onClick={() => setOpen(false)}>Reports</a><a href="#technology" onClick={() => setOpen(false)}>Technology</a></nav><div className="nav-actions"><a className="nav-login" href="#workflow">Sign in</a><a className="button button-teal small" href="#workflow">Start Screening <ArrowRight size={15} /></a></div><button className="menu-toggle" onClick={() => setOpen(!open)} aria-label={open ? 'Close navigation' : 'Open navigation'}>{open ? <X /> : <Menu />}</button></header>
 }
 
-function Hero() {
-  return (
-    <section className="hero section-shell" id="top">
-      <div className="hero-copy reveal-up">
-        <div className="eyebrow"><span className="pulse-dot" /> A clearer picture of eye health</div>
-        <h1>See the signs<br /><em>before they grow.</em></h1>
-        <p className="hero-lede">RetinaCare AI helps care teams screen retinal images with clarity, speed, and a little more confidence.</p>
-        <div className="hero-actions">
-          <a className="button button-coral" href="#screening">Start a screening <ArrowRight size={17} /></a>
-          <a className="watch-link" href="#how-it-works"><span className="play-button"><Play size={13} fill="currentColor" /></span> See how it works</a>
-        </div>
-        <div className="privacy-note"><ShieldCheck size={17} /> Your images stay private and secure.</div>
-      </div>
-      <div className="hero-visual reveal-float" aria-hidden="true">
-        <div className="hero-orbit orbit-one" />
-        <div className="hero-orbit orbit-two" />
-        <div className="hero-card card-image">
-          <div className="mini-label"><span className="status-dot" /> Live view</div>
-          <RetinalImage mode="original" />
-          <div className="image-meta"><span>Retinal scan</span><strong>OD · 45°</strong></div>
-        </div>
-        <div className="hero-card card-result">
-          <div className="result-top"><span className="check-badge"><Check size={15} /></span><span>AI SCREENING</span><span className="result-time">08:42</span></div>
-          <strong>Referable DR</strong>
-          <div className="result-line"><span className="result-pill">Mild</span><span>Confidence</span><b>94%</b></div>
-          <div className="confidence-track"><span /></div>
-        </div>
-        <div className="floating-chip chip-pulse"><HeartPulse size={16} /> Early signal found</div>
-        <div className="floating-chip chip-spark"><Sparkles size={15} /> Explainable</div>
-      </div>
-    </section>
-  )
-}
+function Hero() { return <section className="hero-dark" id="top"><div className="hero-fundus"><img src="/netrika-fundus.png" alt="Detailed retinal fundus image" /><div className="hero-overlay" /><div className="hero-grid" /><div className="hero-scan" /><span className="hero-point hp-one" /><span className="hero-point hp-two" /><span className="hero-point hp-three" /></div><Navbar /><div className="hero-content wrap"><div className="hero-copy"><div className="eyebrow"><span className="live-dot" /> Explainable AI · Diabetic Retinopathy Screening</div><h1>See what<br /><em>the AI sees.</em></h1><p>Screen diabetic retinopathy from retinal images and understand the regions influencing every AI prediction.</p><div className="hero-buttons"><a className="button button-teal" href="#workflow">Start Screening <ArrowRight size={17} /></a><a className="button button-ghost" href="#technology"><span className="play-circle"><Play size={11} fill="currentColor" /></span> Explore how it works</a></div><div className="hero-note"><ShieldCheck size={15} /> Decision support, always reviewed by a qualified professional.</div></div><div className="analysis-card"><div className="analysis-head"><span><span className="live-dot" /> NETRIKA AI</span><span className="analysis-time">LIVE ANALYSIS</span></div><RetinaVisual compact /><div className="analysis-grid"><div><span>Image status</span><strong className="success">Gradable</strong></div><div><span>DR severity</span><strong>Level 2</strong></div><div><span>Confidence</span><strong>94.2%</strong></div><div><span>Referable</span><strong className="warning">YES</strong></div></div><div className="analysis-foot"><Check size={14} /> Analysis complete <span>08:42</span></div></div></div><div className="hero-scroll"><span>Scroll to explore</span><div /></div></section> }
 
-function TrustStrip() {
-  return <section className="trust-strip"><div className="section-shell trust-inner"><span>Designed for the moments that matter</span><div className="trust-items"><span><Zap size={15} /> Fast</span><span><Gauge size={15} /> Precise</span><span><ShieldCheck size={15} /> Private</span></div></div></section>
-}
+function Workflow() { const steps = [{ no: '01', title: 'Capture', copy: 'Upload or capture a retinal image from any compatible fundus camera.' }, { no: '02', title: 'Assess', copy: 'Image quality is checked before any AI prediction is generated.' }, { no: '03', title: 'Explain', copy: 'See the retinal regions that contributed to the model prediction.' }, { no: '04', title: 'Review', copy: 'An ophthalmologist reviews the result and makes the final assessment.' }]; return <section className="workflow wrap" id="technology"><div className="section-label">A clear path forward</div><h2>From retinal image<br /><em>to informed review.</em></h2><div className="workflow-line" /><div className="steps">{steps.map((step, i) => <article className={`workflow-step step-${i}`} key={step.no}><span className="step-no">{step.no}</span><div className="step-icon">{i === 0 ? <UploadCloud /> : i === 1 ? <Activity /> : i === 2 ? <Sparkles /> : <Stethoscope />}</div><h3>{step.title}</h3><p>{step.copy}</p></article>)}</div></section> }
 
-function HowItWorks() {
-  return <section className="how-section section-shell" id="how-it-works"><div className="section-intro"><div className="eyebrow purple"><Sparkles size={15} /> A calmer workflow</div><h2>Less guessing.<br /><em>More seeing.</em></h2><p>Built to fit into the way your team already works, from first image to informed conversation.</p></div><div className="steps-grid">{steps.map((step, index) => { const Icon = step.icon; return <div className="step-card" key={step.title}><div className={`step-number number-${index}`}>0{index + 1}</div><div className="step-icon"><Icon size={23} /></div><h3>{step.title}</h3><p>{step.copy}</p><MoveRight className="step-arrow" size={20} /></div> })}</div></section>
-}
+function ScreeningWorkspace() { const [scanState, setScanState] = useState<ScanState>('ready'); const [mode, setMode] = useState<ViewMode>('original'); const [reviewOpen, setReviewOpen] = useState(false); const start = () => { setScanState('analyzing'); window.setTimeout(() => setScanState('complete'), 2200) }; return <section className="workspace-section" id="workflow"><div className="wrap"><div className="workspace-title"><div><div className="section-label teal-label">Netrika workspace</div><h2>New screening</h2><p>Upload a retinal image to begin AI-assisted screening.</p></div><span className="demo-badge"><span className="live-dot" /> Demo mode</span></div><div className="workspace-grid"><aside className="workspace-panel upload-panel"><div className="panel-top"><span>01 / INPUT</span><CircleHelp size={16} /></div><h3>Retinal image</h3><div className="upload-box"><div className="upload-icon"><FileImage /></div><strong>{scanState === 'ready' ? 'Upload retinal image' : scanState === 'analyzing' ? 'Reviewing image...' : 'Image received'}</strong><p>{scanState === 'ready' ? 'Drag and drop a fundus image here or browse from your device.' : scanState === 'analyzing' ? 'Checking quality and visual signals' : 'OD · 45° · 2048 × 2048 px'}</p>{scanState === 'ready' && <><button className="button button-outline" onClick={start}><UploadCloud size={15} /> Browse files</button><button className="sample-link" onClick={start}>Try a sample image <ArrowRight size={13} /></button></>}{scanState === 'analyzing' && <div className="processing-bar"><span /></div>}{scanState === 'complete' && <div className="complete"><Check size={15} /> Image quality: Gradable</div>}</div><div className="panel-meta"><span><ShieldCheck size={13} /> Secure workflow</span><span>JPG · PNG</span></div></aside><div className="workspace-panel viewer-panel"><div className="panel-top"><span>02 / ANALYSIS</span><span className={`state-pill ${scanState}`}>{scanState === 'ready' ? 'Ready' : scanState === 'analyzing' ? 'Analyzing' : 'Complete'}</span></div><h3>Grad-CAM explanation</h3><div className="viewer"><RetinaVisual mode={mode} />{scanState === 'ready' && <div className="viewer-message"><ScanLine size={24} /><span>Start a screening to analyze this image</span></div>}</div><div className="mode-tabs" role="tablist" aria-label="Retinal image view"><button className={mode === 'original' ? 'active' : ''} onClick={() => setMode('original')}>Original</button><button className={mode === 'gradcam' ? 'active' : ''} onClick={() => setMode('gradcam')}>Grad-CAM</button><button className={mode === 'overlay' ? 'active' : ''} onClick={() => setMode('overlay')}>Overlay</button></div></div><aside className="workspace-panel insight-panel"><div className="panel-top"><span>03 / RESULT</span><FileCheck2 size={16} /></div><h3>Screening result</h3>{scanState !== 'complete' ? <div className="empty-result"><div className="empty-ring"><Eye size={22} /></div><strong>Your result will appear here</strong><p>Complete an image analysis to view severity, confidence, and clinical evidence.</p></div> : <div className="result-content"><div className="result-level"><span>LEVEL 2</span><strong>Moderate DR</strong><em>REFERABLE DR</em></div><div className="confidence"><span>AI confidence</span><strong>94.2%</strong><div><i /></div></div><div className="result-disclaimer">AI prediction, not a medical certainty.</div><button className="button button-teal full" onClick={() => setReviewOpen(true)}>Review case <ArrowRight size={15} /></button></div>}</aside></div>{scanState === 'complete' && <div className="evidence-section"><div className="evidence-heading"><div className="section-label teal-label">Supporting retinal evidence</div><h3>Why did the AI predict this?</h3><p>Highlighted regions indicate areas that contributed most strongly to the model&apos;s prediction.</p></div><div className="evidence-cards">{evidence.map(item => <div className="evidence-card" key={item.name}><span className={`evidence-dot ${item.tone}`} /><div><strong>{item.name}</strong><span>AI-detected · Requires clinical confirmation</span></div><b>{item.confidence}</b></div>)}</div></div>}</div>{reviewOpen && <div className="review-modal" role="dialog" aria-modal="true" aria-labelledby="review-title"><div className="review-card"><button className="close-modal" onClick={() => setReviewOpen(false)} aria-label="Close review"><X /></button><div className="section-label teal-label">Clinical review</div><h3 id="review-title">Ophthalmologist assessment</h3><p>AI results support clinical review; the final assessment always belongs to a qualified professional.</p><label>Final DR level<select defaultValue="2"><option value="0">Level 0 · No DR</option><option value="1">Level 1 · Mild</option><option value="2">Level 2 · Moderate</option><option value="3">Level 3 · Severe</option><option value="4">Level 4 · Proliferative</option></select></label><label>Clinical notes<textarea placeholder="Add observations or follow-up guidance" /></label><button className="button button-teal full" onClick={() => setReviewOpen(false)}>Submit clinical review <Check size={15} /></button></div></div>}</section> }
 
-function ScreeningWorkspace() {
-  const [scanState, setScanState] = useState<ScanState>('ready')
-  const [viewMode, setViewMode] = useState<ViewMode>('original')
-  const [reviewed, setReviewed] = useState(false)
+function Dashboard() { return <section className="dashboard wrap" id="report"><div><div className="section-label">At a glance</div><h2>Screening overview</h2></div><div className="dashboard-stats"><div><strong>24</strong><span>Screened today</span></div><div><strong>5</strong><span>Referable cases</span></div><div><strong>3</strong><span>Pending review</span></div><div><strong>2</strong><span>Ungradable</span></div></div><div className="cases-card"><div className="cases-head"><div><h3>Cases awaiting review</h3><p>Prioritized for ophthalmologist review</p></div><button className="button button-dark small">View all <ChevronRight size={15} /></button></div><div className="case-row case-header"><span>Case ID</span><span>AI level</span><span>Confidence</span><span>Status</span><span>Review</span></div>{[['NT-1024','Level 3','91.8%','Referable','High priority'],['NT-1023','Level 1','88.4%','Non-referable','Normal review'],['NT-1022','Level 2','94.2%','Referable','Pending']].map(row => <div className="case-row" key={row[0]}>{row.map((cell, i) => <span key={cell} className={i === 3 ? 'status-text' : i === 4 ? 'priority-text' : ''}>{cell}</span>)}</div>)}</div></section> }
 
-  function startScan() {
-    setScanState('analyzing')
-    window.setTimeout(() => setScanState('complete'), 2400)
-  }
+function Footer() { return <footer className="footer"><div className="wrap footer-inner"><Logo /><p>Netrika is a research/prototype screening and decision-support system. AI results are not a medical diagnosis and must be reviewed by a qualified healthcare professional.</p><div className="footer-links"><a href="#technology">Technology</a><a href="#workflow">Privacy</a><a href="#top">Back to top <ArrowRight size={13} /></a></div></div></footer> }
 
-  return <section className="screening-section" id="screening"><div className="section-shell"><div className="workspace-heading"><div><div className="eyebrow coral"><Microscope size={15} /> Screening workspace</div><h2>A second set of eyes,<br /><em>right when you need it.</em></h2></div><div className="live-status"><span className="pulse-dot" /> Demo mode <ChevronDown size={14} /></div></div><div className="workspace"><div className="upload-panel"><div className="panel-head"><div><span className="panel-kicker">01 / INPUT</span><h3>Retinal image</h3></div><button className="icon-button" aria-label="More image options" type="button"><CircleHelp size={18} /></button></div><div className="upload-zone"><div className="upload-icon"><FileImage size={25} /></div><strong>{scanState === 'ready' ? 'Drop an image here' : scanState === 'analyzing' ? 'Reviewing image...' : 'Image reviewed'}</strong><span>{scanState === 'ready' ? 'or choose a sample to explore' : scanState === 'analyzing' ? 'Checking quality and visual signals' : 'OD · 45° · 2048 × 2048 px'}</span>{scanState === 'ready' && <button className="button button-outline" onClick={startScan} type="button">Use sample image <ArrowRight size={15} /></button>}{scanState === 'analyzing' && <div className="analyzing-line"><span /> Analysis in progress</div>}{scanState === 'complete' && <div className="complete-line"><Check size={16} /> Analysis complete</div>}</div><div className="panel-foot"><span><ShieldCheck size={14} /> HIPAA-ready workflow</span><span>JPG, PNG</span></div></div><div className="scan-panel"><div className="panel-head"><div><span className="panel-kicker">02 / ANALYSIS</span><h3>Visual signals</h3></div><div className="scan-badge"><span className="status-dot" /> {scanState === 'analyzing' ? 'Running' : scanState === 'complete' ? 'Complete' : 'Ready'}</div></div><div className="scan-view"><RetinalImage mode={viewMode} />{scanState === 'analyzing' && <div className="scan-sweep" />} {scanState === 'ready' && <div className="scan-overlay-label"><Play size={14} fill="currentColor" /> Start to analyze</div>}</div><div className="view-tabs" role="tablist" aria-label="Image view"><button className={viewMode === 'original' ? 'active' : ''} onClick={() => setViewMode('original')} type="button">Original</button><button className={viewMode === 'heatmap' ? 'active' : ''} onClick={() => setViewMode('heatmap')} type="button" disabled={scanState !== 'complete'}>Heatmap</button><button className={viewMode === 'vessels' ? 'active' : ''} onClick={() => setViewMode('vessels')} type="button" disabled={scanState !== 'complete'}>Vessels</button></div></div><div className={`insight-panel ${scanState === 'complete' ? 'is-complete' : ''}`}><div className="panel-head"><div><span className="panel-kicker">03 / INSIGHT</span><h3>Screening result</h3></div><Info size={18} className="muted-icon" /></div>{scanState !== 'complete' ? <div className="empty-insight"><div className="empty-icon"><Layers3 size={25} /></div><strong>Your result will appear here</strong><span>Run a sample screening to see the AI’s reasoning.</span></div> : <div className="result-content"><div className="big-result"><div className="result-status"><span className="check-badge"><Check size={16} /></span><span>Screening complete</span></div><strong>Referable DR</strong><p>Mild signs detected. Consider a follow-up with an eye care professional.</p></div><div className="metric-row"><div><span>Confidence</span><strong>94%</strong></div><div><span>Image quality</span><strong>Excellent</strong></div></div><button className={`button ${reviewed ? 'button-success' : 'button-dark'} full-button`} onClick={() => setReviewed(true)} type="button">{reviewed ? <><Check size={16} /> Added to review</> : <>Send to clinician review <ArrowRight size={16} /></>}</button></div>}</div></div>{scanState === 'complete' && <div className="evidence-row" id="evidence"><div className="evidence-heading"><Sparkles size={17} /><strong>What informed this result?</strong><span>Model evidence, made human-readable.</span></div>{evidence.map(([name, value, color]) => <div className={`evidence-card ${color}`} key={name}><div className="evidence-bar"><span /><span /><span /></div><strong>{name}</strong><span>{value}</span></div>)}</div>}</div></section>
-}
-
-function Footer() {
-  return <footer className="footer section-shell"><div className="brand"><span className="brand-mark"><Eye size={19} strokeWidth={2.5} /></span><span>Retina<span>Care</span><sup>AI</sup></span></div><span>Built for a healthier tomorrow.</span><div className="footer-links"><a href="#how-it-works">How it works</a><a href="#screening">Privacy</a><a href="#screening">Contact</a></div></footer>
-}
-
-export default function Page() {
-  return <main><AppHeader /><Hero /><TrustStrip /><HowItWorks /><ScreeningWorkspace /><Footer /></main>
-}
+export default function Page() { return <main><Hero /><Workflow /><ScreeningWorkspace /><Dashboard /><Footer /></main> }
