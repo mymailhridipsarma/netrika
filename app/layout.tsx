@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: 'Netrika — See what the AI sees',
   description: 'Explainable AI for diabetic retinopathy screening and clinical decision support.',
   generator: 'v0.app',
+  icons: {
+    icon: '/logo-netrika.png',
+    apple: '/logo-netrika.png',
+  },
 }
 
 export const viewport: Viewport = {
