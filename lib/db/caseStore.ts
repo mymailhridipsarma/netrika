@@ -33,6 +33,7 @@ const defaultCases: CaseRecord[] = [
       centerName: 'Sonitpur Rural Vision Centre / PHC',
     },
     quality: {
+      isRetinal: true,
       isGradable: true,
       score: 94,
       status: 'Gradable',
@@ -72,6 +73,7 @@ const defaultCases: CaseRecord[] = [
       centerName: 'Sonitpur Rural Vision Centre / PHC',
     },
     quality: {
+      isRetinal: true,
       isGradable: true,
       score: 96,
       status: 'Gradable',
@@ -110,6 +112,7 @@ const defaultCases: CaseRecord[] = [
       centerName: 'Sonitpur Rural Vision Centre / PHC',
     },
     quality: {
+      isRetinal: true,
       isGradable: true,
       score: 97,
       status: 'Gradable',
